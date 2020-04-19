@@ -42,25 +42,21 @@ class BandwidthList extends React.Component {
     } else if (!isLoaded) {
       return <div>Загрузка...</div>;
     } else if (0 == items.length) {
-      return '';
+      return <div>No Bandwidths assosiated</div>;
     } else {
       return (
           <div className="divTable" style={{border: '1px solid #000'}} >
           <div className="divTableBody">
             <div className="divTableRow">
-            <div className="divTableCell">NN</div>
-            <div className="divTableCell">Bandwidths</div>
-            <div className="divTableCell">Loads Mbs</div>
-            </div>
+              <div className="divTableCell">NN</div>
+              <div className="divTableCell">Bandwidths</div>
+              <div className="divTableCell">Loads Mbs</div>
+              </div>
             {items.map(item => (
             <div className="divTableRow" key={item.id} id={item.id}>
-            <div className="divTableCell">{item.id}</div>
-            <div className="divTableCell">
-              {item.interface_name}
-            </div>
-            <div className="divTableCell">
-              {item.value}
-            </div>
+              <div className="divTableCell">{item.id}</div>
+              <div className="divTableCell">{item.interface_name}</div>
+              <div className="divTableCell">{item.value}</div>
             </div>
             ))}
           </div>
@@ -76,8 +72,11 @@ class ServerList extends React.Component {
     this.state = {
       error: null,
       isLoaded: false,
-      items: []
+      items: [],
+      dropDownItem: null
     };
+
+    this.bandwidthList = this.bandwidthList.bind(this);
   }
 
   componentDidMount() {
@@ -99,11 +98,10 @@ class ServerList extends React.Component {
       )
   }
 
-  // bandwidthList(e) {
-  //   e.preventDefault();
-  //   console.log('По ссылке кликнули.');
-  //   // this.d
-  // }
+  bandwidthList (serverId, e) {
+    e.preventDefault();
+    this.setState({dropDownItem: serverId});
+  }
 
   render() {
     const { error, isLoaded, items } = this.state;
@@ -123,8 +121,8 @@ class ServerList extends React.Component {
             <div className="divTableRow" key={item.id} id={item.id}>
             <div className="divTableCell">{item.id}</div>
             <div className="divTableCell">
-              {item.name}
-              <BandwidthList server_id={item.id} />
+              <a onClick={(e) => this.bandwidthList(item.id, e)} href="#">{item.name}</a>
+              { item.id == this.state.dropDownItem && <BandwidthList server_id={item.id} />}
             </div>
             </div>
             ))}
