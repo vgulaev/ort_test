@@ -79,28 +79,45 @@ class ServerList extends React.Component {
     this.bandwidthList = this.bandwidthList.bind(this);
   }
 
-  componentDidMount() {
+  fetchItems() {
     fetch("api/server")
-      .then(res => res.json())
-      .then(
-        (result) => {
-          this.setState({
-            isLoaded: true,
-            items: result
-          });
-        },
-        (error) => {
-          this.setState({
-            isLoaded: true,
-            error
-          });
-        }
-      )
+    .then(res => res.json())
+    .then(
+      (result) => {
+        this.setState({
+          isLoaded: true,
+          items: result
+        });
+      },
+      (error) => {
+        this.setState({
+          isLoaded: true,
+          error
+        });
+      }
+    )
   }
 
-  bandwidthList (serverId, e) {
+  componentDidMount() {
+    this.fetchItems();
+  }
+
+  bandwidthList(serverId, e) {
     e.preventDefault();
     this.setState({dropDownItem: serverId});
+  }
+
+  csfr() {
+    return document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+  }
+
+  deleteItem(id, e) {
+    e.preventDefault();
+    fetch(`/server/${id}`, {method: 'DELETE', headers: {'X-CSRF-Token': this.csfr()}}).then((response) => {
+      return response.json();
+    }).then((result) => {
+      this.fetchItems();
+    });
   }
 
   render() {
@@ -122,6 +139,8 @@ class ServerList extends React.Component {
             <div className="divTableCell">{item.id}</div>
             <div className="divTableCell">
               <a onClick={(e) => this.bandwidthList(item.id, e)} href="#">{item.name}</a>
+              &nbsp;
+              <a onClick={(e) => this.deleteItem(item.id, e)} href="#" style={{color: 'red'}}>удалить</a>
               { item.id == this.state.dropDownItem && <BandwidthList server_id={item.id} />}
             </div>
             </div>
